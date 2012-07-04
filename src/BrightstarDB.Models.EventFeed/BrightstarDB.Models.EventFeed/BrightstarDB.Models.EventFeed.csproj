@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BrightstarDB">
-      <HintPath>..\..\..\..\..\Program Files (x86)\BrightstarDB\SDK\NET40\BrightstarDB.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\BrightstarDB\SDK\NET40\BrightstarDB.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />

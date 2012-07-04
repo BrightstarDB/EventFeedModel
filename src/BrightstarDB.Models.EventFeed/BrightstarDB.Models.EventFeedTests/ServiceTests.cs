@@ -15,7 +15,7 @@ namespace BrightstarDB.Models.EventFeedTests
     {
         private const string ConnectionString = "type=embedded;storesdirectory=c:\\brightstar";
 
-        private EventFeedContext GetContext(string storeId)
+        private static EventFeedContext GetContext(string storeId)
         {
             return new EventFeedContext(ConnectionString + ";storename=" + storeId); 
         }
@@ -73,9 +73,7 @@ namespace BrightstarDB.Models.EventFeedTests
             // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
             // a well known topic.
             eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
-
             eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
-
             eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/34" });
 
             // use a raw context to check it exist
@@ -88,20 +86,109 @@ namespace BrightstarDB.Models.EventFeedTests
 
             Assert.AreEqual(1, ev.Topics.Count());
             Assert.AreEqual("http://www.brightstardb.com/topics/34", ev.Topics.ToList()[0].Id);
+        }
 
+        [TestMethod]
+        public void TestSubscriberTimeline()
+        {
+            var storeId = Guid.NewGuid().ToString();
+            var eventService = new EventFeedService(storeId);
 
+            // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
+            // a well known topic.
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
+            eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/34" });
 
+            var events = eventService.GetSubscriberTimeline("domain\\bob", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
+        }
+
+        [TestMethod]
+        public void TestTopicTimeline()
+        {
+            var storeId = Guid.NewGuid().ToString();
+            var eventService = new EventFeedService(storeId);
+
+            // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
+            // a well known topic.
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
+            eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/34" });
+
+            var events = eventService.GetTopicTimeline("http://www.brightstardb.com/topics/34", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
         }
 
         [TestMethod]
         public void TestRegisterInterest()
         {
+            var storeId = Guid.NewGuid().ToString();
+            var eventService = new EventFeedService(storeId);
 
+            // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
+            // a well known topic.
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/33"), "Topic 33", "A very important topic");
+
+            eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/33" });
+            
+            eventService.RegisterInterest("domain\\bob", "http://www.brightstardb.com/topics/33");                        
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/33" });
+
+            var events = eventService.GetSubscriberTimeline("domain\\bob", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
         }
 
         [TestMethod]
         public void TestRemoveInterest()
         {
+            var storeId = Guid.NewGuid().ToString();
+            var eventService = new EventFeedService(storeId);
+
+            // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
+            // a well known topic.
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/33"), "Topic 33", "A very important topic");
+
+            eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
+            eventService.RegisterInterest("domain\\bob", "http://www.brightstardb.com/topics/33");
+
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/33" });
+
+            var events = eventService.GetSubscriberTimeline("domain\\bob", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
+
+            // remove interest
+            eventService.RemoveInterest("domain\\bob", "http://www.brightstardb.com/topics/33");
+            eventService.RaiseEvent("Bob created document Y", DateTime.UtcNow, new List<string>() { "http://www.brightstardb.com/topics/33" });
+            events = eventService.GetSubscriberTimeline("domain\\bob", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
+        }
+
+        [TestMethod]
+        public void TestEventData()
+        {
+            var storeId = Guid.NewGuid().ToString();
+            var eventService = new EventFeedService(storeId);
+
+            // create a topic first that can be subscribed to, this topic could have been 'found' by search or be
+            // a well known topic.
+            eventService.AssertTopic(new Uri("http://www.brightstardb.com/topics/34"), "Topic 34", "A very important topic");
+            eventService.AssertSubscriber("domain\\bob", new List<Uri>() { new Uri("http://www.brightstardb.com/topics/34") });
+            eventService.RaiseEvent("Bob created document Y", 
+                                    DateTime.UtcNow, 
+                                    new List<string> { "http://www.brightstardb.com/topics/34" }, 
+                                    new Dictionary<string, object> { { "DocumentUrl", "http://sharepoint.brightstardb.com"} });
+
+            var events = eventService.GetTopicTimeline("http://www.brightstardb.com/topics/34", DateTime.MinValue);
+            Assert.AreEqual(1, events.Count());
+
+            // get event
+            var ev = events.ToList()[0];
+            var eventData = eventService.GetEventData(ev);
+            Assert.AreEqual("http://sharepoint.brightstardb.com", eventData.DocumentUrl.ToList()[0]);
 
         }
     }

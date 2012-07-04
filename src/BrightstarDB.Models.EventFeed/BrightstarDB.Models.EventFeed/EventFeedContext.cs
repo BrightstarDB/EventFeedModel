@@ -166,6 +166,11 @@ namespace BrightstarDB.Models.EventFeed
     		get { return GetRelatedObjects<BrightstarDB.Models.EventFeed.IEvent>("Events"); }
     		set { SetRelatedObjects("Events", value); }
     								}
+    	public System.Collections.Generic.ICollection<BrightstarDB.Models.EventFeed.ISubscriber> Subscribers
+    	{
+    		get { return GetRelatedObjects<BrightstarDB.Models.EventFeed.ISubscriber>("Subscribers"); }
+    		set { SetRelatedObjects("Subscribers", value); }
+    								}
     	#endregion
     }
 }

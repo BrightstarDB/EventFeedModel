@@ -25,5 +25,12 @@ namespace BrightstarDB.Models.EventFeed
         /// </summary>
         [InverseProperty("Topics")]
         ICollection<IEvent> Events { get; }
+
+        /// <summary>
+        /// The collection of people subscribing to this topic.
+        /// </summary>
+        [InverseProperty("Topics")]
+        ICollection<ISubscriber> Subscribers { get; }
+
     }
 }
