@@ -180,7 +180,7 @@ namespace BrightstarDB.Models.EventFeedTests
             eventService.RaiseEvent("Bob created document Y", 
                                     DateTime.UtcNow, 
                                     new List<string> { "http://www.brightstardb.com/topics/34" }, 
-                                    new Dictionary<string, object> { { "DocumentUrl", "http://sharepoint.brightstardb.com"} });
+                                    new Dictionary<string, object> { {"Type", "DocumentEvent"},{ "DocumentUrl", "http://sharepoint.brightstardb.com/file1.docx"}});
 
             var events = eventService.GetTopicTimeline("http://www.brightstardb.com/topics/34", DateTime.MinValue);
             Assert.AreEqual(1, events.Count());
@@ -188,7 +188,7 @@ namespace BrightstarDB.Models.EventFeedTests
             // get event
             var ev = events.ToList()[0];
             var eventData = eventService.GetEventData(ev);
-            Assert.AreEqual("http://sharepoint.brightstardb.com", eventData.DocumentUrl.ToList()[0]);
+            Assert.AreEqual("http://sharepoint.brightstardb.com/file1.docx", eventData.DocumentUrl.FirstOrDefault());
 
         }
     }

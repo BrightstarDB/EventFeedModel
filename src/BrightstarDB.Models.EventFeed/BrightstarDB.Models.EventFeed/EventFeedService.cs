@@ -172,7 +172,7 @@ namespace BrightstarDB.Models.EventFeed
 
                     foreach (var key in eventProperties.Keys)
                     {
-                        dynaEvent.key = eventProperties[key];
+                        dynaEvent[key] = eventProperties[key];
                     }
                     dynaStore.SaveChanges();
                 }
