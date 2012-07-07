@@ -13,7 +13,7 @@ namespace BrightstarDB.Models.EventFeed
     /// The event feed service provides the functional 
     /// capabilities and uses the data model defined.
     /// </summary>
-    public class EventFeedService
+    public class EventFeedService : IEventFeedService
     {
         private readonly string _connectionString;
         private readonly string _storeName;

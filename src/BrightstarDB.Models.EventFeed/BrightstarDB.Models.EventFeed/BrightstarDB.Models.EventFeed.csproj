@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="EventFeedService.cs" />
     <Compile Include="IEvent.cs" />
+    <Compile Include="IEventFeedService.cs" />
     <Compile Include="ISubscriber.cs" />
     <Compile Include="ITopic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
